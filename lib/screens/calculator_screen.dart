@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/bmi_record.dart';
 import '../services/bmi_service.dart';
-import '../services/storage_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/glass_container.dart';
 import '../l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../services/settings_provider.dart';
+import '../services/history_provider.dart';
 
 class CalculatorScreen extends StatefulWidget {
   const CalculatorScreen({super.key});
@@ -43,16 +45,13 @@ class _CalculatorScreenState extends State<CalculatorScreen>
     _loadDefaults();
   }
 
-  Future<void> _loadDefaults() async {
-    final s = await StorageService.loadSettings();
-    if (!mounted) return;
-    setState(() {
-      _gender = s.defaultGender;
-      _ageController.text = s.defaultAge.toString();
-      _useMetric = s.useMetric;
-      _heightController.text = s.defaultHeight.toStringAsFixed(0);
-      _weightController.text = s.defaultWeight.toStringAsFixed(0);
-    });
+  void _loadDefaults() {
+    final s = Provider.of<SettingsProvider>(context, listen: false).settings;
+    _gender = s.defaultGender;
+    _ageController.text = s.defaultAge.toString();
+    _useMetric = s.useMetric;
+    _heightController.text = s.defaultHeight.toStringAsFixed(0);
+    _weightController.text = s.defaultWeight.toStringAsFixed(0);
   }
 
   @override
@@ -69,11 +68,15 @@ class _CalculatorScreenState extends State<CalculatorScreen>
     final height = double.tryParse(_heightController.text);
     final age = int.tryParse(_ageController.text);
 
-    if (weight == null || height == null || age == null) {
+    final weightErr = BmiService.validateWeight(weight, _useMetric);
+    final heightErr = BmiService.validateHeight(height, _useMetric);
+    final ageErr = BmiService.validateAge(age);
+
+    if (weightErr != null || heightErr != null || ageErr != null) {
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.pleaseFillAll),
+          content: Text(weightErr ?? heightErr ?? ageErr ?? l10n.pleaseFillAll),
           backgroundColor: AppTheme.error,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -84,11 +87,11 @@ class _CalculatorScreenState extends State<CalculatorScreen>
       return;
     }
 
-    double weightKg = _useMetric ? weight : BmiService.lbsToKg(weight);
-    double heightCm = _useMetric ? height : BmiService.inchesToCm(height);
+    double weightKg = _useMetric ? weight! : BmiService.lbsToKg(weight!);
+    double heightCm = _useMetric ? height! : BmiService.inchesToCm(height!);
 
     final bmi = BmiService.calculateBmi(weightKg, heightCm);
-    final bf = BmiService.calculateBodyFat(bmi, age, _gender);
+    final bf = BmiService.calculateBodyFat(bmi, age!, _gender);
     final cat = BmiService.getCategory(bmi);
 
     setState(() {
@@ -108,11 +111,14 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   }
 
   Future<void> _saveResult() async {
-    final weight = double.parse(_weightController.text);
-    final height = double.parse(_heightController.text);
-    final age = int.parse(_ageController.text);
+    final weight = double.tryParse(_weightController.text);
+    final height = double.tryParse(_heightController.text);
+    final age = int.tryParse(_ageController.text);
+
+    if (weight == null || height == null || age == null) return;
 
     final record = BmiRecord(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
       weight: weight,
       height: height,
       age: age,
@@ -123,7 +129,9 @@ class _CalculatorScreenState extends State<CalculatorScreen>
       dateTime: DateTime.now(),
       isMetric: _useMetric,
     );
-    await StorageService.addRecord(record);
+    
+    await Provider.of<HistoryProvider>(context, listen: false).addRecord(record);
+    
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

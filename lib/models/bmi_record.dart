@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 class BmiRecord {
+  final String id;
   final double weight; // kg (metric) or lbs (imperial)
   final double height; // cm (metric) or inches (imperial)
   final int age;
@@ -12,6 +13,7 @@ class BmiRecord {
   final bool isMetric;
 
   BmiRecord({
+    required this.id,
     required this.weight,
     required this.height,
     required this.age,
@@ -24,6 +26,7 @@ class BmiRecord {
   });
 
   Map<String, dynamic> toJson() => {
+        'id': id,
         'weight': weight,
         'height': height,
         'age': age,
@@ -36,6 +39,7 @@ class BmiRecord {
       };
 
   factory BmiRecord.fromJson(Map<String, dynamic> json) => BmiRecord(
+        id: json['id'] as String? ?? DateTime.now().millisecondsSinceEpoch.toString(),
         weight: (json['weight'] as num).toDouble(),
         height: (json['height'] as num).toDouble(),
         age: json['age'] as int,

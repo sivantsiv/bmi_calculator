@@ -4,7 +4,7 @@ import '../models/user_settings.dart';
 import '../services/storage_service.dart';
 import '../theme/app_theme.dart';
 import 'package:provider/provider.dart';
-import '../services/locale_provider.dart';
+import '../services/settings_provider.dart';
 import '../l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -21,7 +21,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _weightController = TextEditingController();
   String _gender = 'male';
   bool _useMetric = true;
-  bool _loading = true;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -29,30 +29,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _load();
   }
 
-  Future<void> _load() async {
-    final s = await StorageService.loadSettings();
-    if (!mounted) return;
-    setState(() {
-      _nameController.text = s.name;
-      _ageController.text = s.defaultAge.toString();
-      _heightController.text = s.defaultHeight.toStringAsFixed(0);
-      _weightController.text = s.defaultWeight.toStringAsFixed(0);
-      _gender = s.defaultGender;
-      _useMetric = s.useMetric;
-      _loading = false;
-    });
+  void _load() {
+    final s = Provider.of<SettingsProvider>(context, listen: false).settings;
+    _nameController.text = s.name;
+    _ageController.text = s.defaultAge.toString();
+    _heightController.text = s.defaultHeight.toStringAsFixed(0);
+    _weightController.text = s.defaultWeight.toStringAsFixed(0);
+    _gender = s.defaultGender;
+    _useMetric = s.useMetric;
+    _isLoading = false;
   }
 
   Future<void> _save() async {
+    final weight = double.tryParse(_weightController.text);
+    final height = double.tryParse(_heightController.text);
+    final age = int.tryParse(_ageController.text);
+
+    if (weight == null || height == null || age == null) {
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.pleaseFillAll),
+          backgroundColor: AppTheme.error,
+        ),
+      );
+      return;
+    }
+
     final settings = UserSettings(
       name: _nameController.text.trim(),
       defaultGender: _gender,
-      defaultAge: int.tryParse(_ageController.text) ?? 25,
+      defaultAge: age,
       useMetric: _useMetric,
-      defaultHeight: double.tryParse(_heightController.text) ?? 170,
-      defaultWeight: double.tryParse(_weightController.text) ?? 70,
+      defaultHeight: height,
+      defaultWeight: weight,
     );
-    await StorageService.saveSettings(settings);
+    
+    await Provider.of<SettingsProvider>(context, listen: false).updateSettings(settings);
+    
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -75,7 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
+    if (_isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -281,7 +295,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildLanguageDropdown(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final localeProvider = Provider.of<LocaleProvider>(context);
+    final localeProvider = Provider.of<SettingsProvider>(context);
     final languages = {
       'system': l10n.systemDefault,
       'en': 'English',
@@ -304,7 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: localeProvider.locale?.languageCode ?? 'system',
+          value: localeProvider.settings.languageCode,
           dropdownColor: AppTheme.surface,
           items: languages.entries.map((e) {
             return DropdownMenuItem(

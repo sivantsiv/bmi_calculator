@@ -9,13 +9,17 @@ import 'screens/settings_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'services/locale_provider.dart';
+import 'services/settings_provider.dart';
+import 'services/history_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => LocaleProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => HistoryProvider()),
+      ],
       child: const CalculateBmiApp(),
     ),
   );
@@ -26,7 +30,7 @@ class CalculateBmiApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeProvider = Provider.of<LocaleProvider>(context);
+    final settingsProvider = Provider.of<SettingsProvider>(context);
 
     return MaterialApp(
       title: 'Calculate BMI',
@@ -50,7 +54,7 @@ class CalculateBmiApp extends StatelessWidget {
         Locale('ru'),
         Locale('de'),
       ],
-      locale: localeProvider.locale,
+      locale: settingsProvider.locale,
       home: const MainShell(),
     );
   }

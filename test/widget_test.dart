@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:calculate_bmi/main.dart';
 import 'package:calculate_bmi/services/bmi_service.dart';
-import 'package:calculate_bmi/services/locale_provider.dart';
+import 'package:calculate_bmi/services/settings_provider.dart';
+import 'package:calculate_bmi/services/history_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -76,6 +77,26 @@ void main() {
     });
   });
 
+  group('BmiService validation', () {
+    test('validateWeight bounds', () {
+      expect(BmiService.validateWeight(5, true), 'Weight too low');
+      expect(BmiService.validateWeight(600, true), 'Weight too high');
+      expect(BmiService.validateWeight(70, true), isNull);
+    });
+
+    test('validateHeight bounds', () {
+      expect(BmiService.validateHeight(40, true), 'Height too low');
+      expect(BmiService.validateHeight(300, true), 'Height too high');
+      expect(BmiService.validateHeight(170, true), isNull);
+    });
+
+    test('validateAge bounds', () {
+      expect(BmiService.validateAge(-1), 'Age cannot be negative');
+      expect(BmiService.validateAge(150), 'Age too high');
+      expect(BmiService.validateAge(25), isNull);
+    });
+  });
+
   group('BmiService unit conversions', () {
     test('lbs to kg', () {
       expect(BmiService.lbsToKg(154), closeTo(69.85, 0.1));
@@ -92,8 +113,11 @@ void main() {
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
-      ChangeNotifierProvider(
-        create: (_) => LocaleProvider(),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => SettingsProvider()),
+          ChangeNotifierProvider(create: (_) => HistoryProvider()),
+        ],
         child: const CalculateBmiApp(),
       ),
     );
@@ -108,8 +132,11 @@ void main() {
 
   testWidgets('Calculator screen has inputs', (WidgetTester tester) async {
     await tester.pumpWidget(
-      ChangeNotifierProvider(
-        create: (_) => LocaleProvider(),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => SettingsProvider()),
+          ChangeNotifierProvider(create: (_) => HistoryProvider()),
+        ],
         child: const CalculateBmiApp(),
       ),
     );

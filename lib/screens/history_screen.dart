@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../models/bmi_record.dart';
-import '../services/storage_service.dart';
-import '../theme/app_theme.dart';
 import '../theme/glass_container.dart';
+import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../services/history_provider.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -15,27 +16,8 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  List<BmiRecord> _records = [];
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final records = await StorageService.loadHistory();
-    if (!mounted) return;
-    setState(() {
-      _records = records;
-      _loading = false;
-    });
-  }
-
-  Future<void> _delete(int index) async {
-    await StorageService.deleteRecord(index);
-    await _load();
+  Future<void> _delete(String id) async {
+    await Provider.of<HistoryProvider>(context, listen: false).deleteRecord(id);
   }
 
   Future<void> _clearAll() async {
@@ -72,20 +54,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
     );
     if (confirmed == true) {
-      await StorageService.clearHistory();
-      await _load();
+      if (!mounted) return;
+      await Provider.of<HistoryProvider>(context, listen: false).clearHistory();
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final history = Provider.of<HistoryProvider>(context);
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(l10n.history),
         actions: [
-          if (_records.isNotEmpty)
+          if (history.records.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.delete_sweep_rounded),
               tooltip: l10n.clearHistory,
@@ -93,11 +75,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
         ],
       ),
-      body: _loading
+      body: history.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _records.isEmpty
+          : history.records.isEmpty
           ? _buildEmpty(context)
-          : _buildList(),
+          : _buildList(history.records),
     );
   }
 
@@ -133,19 +115,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildList() {
+  Widget _buildList(List<BmiRecord> records) {
     final l10n = AppLocalizations.of(context)!;
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _records.length,
+      itemCount: records.length,
       itemBuilder: (context, index) {
-        final r = _records[index];
+        final r = records[index];
         final catColor = AppTheme.categoryColor(r.category);
         final dateStr = DateFormat('MMM d, yyyy – HH:mm').format(r.dateTime);
         final unitLabel = r.isMetric ? l10n.metricUnits : l10n.imperialUnits;
 
         return Dismissible(
-          key: ValueKey(r.dateTime.toIso8601String()),
+          key: ValueKey(r.id),
           direction: DismissDirection.endToStart,
           background: Container(
             alignment: Alignment.centerRight,
@@ -157,7 +139,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             child: const Icon(Icons.delete, color: AppTheme.error),
           ),
-          onDismissed: (_) => _delete(index),
+          onDismissed: (_) => _delete(r.id),
           child: GlassContainer(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             padding: const EdgeInsets.all(16),

@@ -37,13 +37,15 @@ class _FluidBackgroundState extends State<FluidBackground>
         Container(color: AppTheme.background),
         // Animated Blobs
         Positioned.fill(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) {
-              return CustomPaint(
-                painter: _FluidPainter(animationValue: _controller.value),
-              );
-            },
+          child: RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return CustomPaint(
+                  painter: _FluidPainter(animationValue: _controller.value),
+                );
+              },
+            ),
           ),
         ),
         // Content
@@ -103,5 +105,6 @@ class _FluidPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _FluidPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _FluidPainter oldDelegate) =>
+      oldDelegate.animationValue != animationValue;
 }
