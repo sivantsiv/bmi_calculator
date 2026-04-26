@@ -199,5 +199,5 @@ class AppLocalizationsZh extends AppLocalizations {
   String get imperialUnits => '磅 / 英寸';
 
   @override
-  String get appVersion => 'v1.0';
+  String get appVersion => 'v1.1';
 }

@@ -200,5 +200,5 @@ class AppLocalizationsDe extends AppLocalizations {
   String get imperialUnits => 'lb / in';
 
   @override
-  String get appVersion => 'v1.0';
+  String get appVersion => 'v1.1';
 }

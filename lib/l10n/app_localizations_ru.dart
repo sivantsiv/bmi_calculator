@@ -200,5 +200,5 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imperialUnits => 'фунт / дюйм';
 
   @override
-  String get appVersion => 'v1.0';
+  String get appVersion => 'v1.1';
 }
