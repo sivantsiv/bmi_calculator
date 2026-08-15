@@ -9,7 +9,7 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get appTitle => 'Calculateur d\'IMC';
+  String get appTitle => 'myBMI';
 
   @override
   String get calculator => 'Calculer';

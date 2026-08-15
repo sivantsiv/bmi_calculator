@@ -117,7 +117,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Calculate BMI'**
+  /// **'myBMI'**
   String get appTitle;
 
   /// No description provided for @calculator.

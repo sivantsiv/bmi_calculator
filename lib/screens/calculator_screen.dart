@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/bmi_record.dart';
@@ -64,9 +65,9 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   }
 
   void _calculate() {
-    final weight = double.tryParse(_weightController.text);
-    final height = double.tryParse(_heightController.text);
-    final age = int.tryParse(_ageController.text);
+    final weight = BmiService.parseLocalizedDouble(_weightController.text);
+    final height = BmiService.parseLocalizedDouble(_heightController.text);
+    final age = BmiService.parseLocalizedInt(_ageController.text);
 
     final weightErr = BmiService.validateWeight(weight, _useMetric);
     final heightErr = BmiService.validateHeight(height, _useMetric);
@@ -111,9 +112,9 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   }
 
   Future<void> _saveResult() async {
-    final weight = double.tryParse(_weightController.text);
-    final height = double.tryParse(_heightController.text);
-    final age = int.tryParse(_ageController.text);
+    final weight = BmiService.parseLocalizedDouble(_weightController.text);
+    final height = BmiService.parseLocalizedDouble(_heightController.text);
+    final age = BmiService.parseLocalizedInt(_ageController.text);
 
     if (weight == null || height == null || age == null) return;
 
@@ -198,7 +199,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
                 child: Switch(
                   value: _useMetric,
                   activeTrackColor: AppTheme.accent.withValues(alpha: 0.5),
-                  activeColor: AppTheme.accent,
+                  activeThumbColor: AppTheme.accent,
                   onChanged: (v) => setState(() => _useMetric = v),
                 ),
               ),
@@ -215,12 +216,12 @@ class _CalculatorScreenState extends State<CalculatorScreen>
           // Weight
           TextField(
             controller: _weightController,
-            keyboardType: TextInputType.number,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             style: GoogleFonts.outfit(fontSize: 18),
             decoration: InputDecoration(
               labelText: _useMetric
-                  ? l10n.weight + ' (kg)'
-                  : l10n.weight + ' (lbs)',
+                  ? '${l10n.weight} (kg)'
+                  : '${l10n.weight} (lbs)',
               prefixIcon: const Icon(
                 Icons.fitness_center_rounded,
                 color: AppTheme.accent,
@@ -231,12 +232,12 @@ class _CalculatorScreenState extends State<CalculatorScreen>
           // Height
           TextField(
             controller: _heightController,
-            keyboardType: TextInputType.number,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             style: GoogleFonts.outfit(fontSize: 18),
             decoration: InputDecoration(
               labelText: _useMetric
-                  ? l10n.height + ' (cm)'
-                  : l10n.height + ' (inches)',
+                  ? '${l10n.height} (cm)'
+                  : '${l10n.height} (inches)',
               prefixIcon: const Icon(
                 Icons.straighten_rounded,
                 color: AppTheme.accent,
@@ -466,12 +467,12 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   }
 }
 
-// AnimatedBuilder is just an alias — use AnimatedBuilder widget
-// We use AnimatedBuilder above with CustomPaint for the gauge.
-
 class _BmiGaugePainter extends CustomPainter {
   final double progress;
   final Color color;
+
+  static const double _startAngle = 2.3; // radians (≈ 7 o'clock)
+  static final double _sweepTotal = 2 * math.pi - 2 * (_startAngle - math.pi); // ≈ 4.88 radians
 
   _BmiGaugePainter({required this.progress, required this.color});
 
@@ -479,8 +480,6 @@ class _BmiGaugePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 8;
-    const startAngle = 2.3; // radians (≈ 7 o'clock)
-    const sweepTotal = 2 * 3.14159 - 2 * (2.3 - 3.14159); // ≈ 4.88 radians
 
     // Background arc
     final bgPaint = Paint()
@@ -491,8 +490,8 @@ class _BmiGaugePainter extends CustomPainter {
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
-      startAngle,
-      sweepTotal,
+      _startAngle,
+      _sweepTotal,
       false,
       bgPaint,
     );
@@ -506,8 +505,8 @@ class _BmiGaugePainter extends CustomPainter {
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
-      startAngle,
-      sweepTotal * progress,
+      _startAngle,
+      _sweepTotal * progress,
       false,
       fgPaint,
     );

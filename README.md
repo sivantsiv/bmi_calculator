@@ -1,6 +1,6 @@
-# Calculate BMI
-
-A new Flutter project.
+# myBMI
+ 
+A modern, beautiful, and performant BMI & Body Fat Calculator application built with Flutter.
 
 ## Getting Started
 

@@ -9,7 +9,7 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
-  String get appTitle => 'BMI Rechner';
+  String get appTitle => 'myBMI';
 
   @override
   String get calculator => 'Rechnen';

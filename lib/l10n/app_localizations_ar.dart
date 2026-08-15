@@ -9,7 +9,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'حاسبة مؤشر كتلة الجسم';
+  String get appTitle => 'myBMI';
 
   @override
   String get calculator => 'حساب';

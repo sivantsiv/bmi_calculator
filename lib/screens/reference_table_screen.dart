@@ -37,7 +37,7 @@ class ReferenceTableScreen extends StatelessWidget {
   Widget _sectionTitle(BuildContext context, String title) {
     return Text(
       title,
-      style: GoogleFonts.inter(
+      style: GoogleFonts.outfit(
         fontSize: 20,
         fontWeight: FontWeight.w700,
         color: AppTheme.accent,
@@ -128,7 +128,7 @@ class ReferenceTableScreen extends StatelessWidget {
                 child: Text(
                   l,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.outfit(
                     fontWeight: FontWeight.w700,
                     color: AppTheme.textPrimary,
                     fontSize: 14,
@@ -152,7 +152,7 @@ class ReferenceTableScreen extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.outfit(
                 color: color,
                 fontWeight: FontWeight.w600,
               ),
@@ -162,7 +162,7 @@ class ReferenceTableScreen extends StatelessWidget {
             child: Text(
               range,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(color: AppTheme.textSecondary),
+              style: GoogleFonts.outfit(color: AppTheme.textSecondary),
             ),
           ),
         ],
@@ -181,7 +181,7 @@ class ReferenceTableScreen extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.outfit(
                 color: color,
                 fontWeight: FontWeight.w600,
               ),
@@ -191,14 +191,14 @@ class ReferenceTableScreen extends StatelessWidget {
             child: Text(
               men,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(color: AppTheme.textSecondary),
+              style: GoogleFonts.outfit(color: AppTheme.textSecondary),
             ),
           ),
           Expanded(
             child: Text(
               women,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(color: AppTheme.textSecondary),
+              style: GoogleFonts.outfit(color: AppTheme.textSecondary),
             ),
           ),
         ],
@@ -230,7 +230,7 @@ class ReferenceTableScreen extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 l10n.aboutFormulas,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.outfit(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
                   color: AppTheme.accent,
@@ -241,7 +241,7 @@ class ReferenceTableScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             l10n.formulaInfo,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.outfit(
               color: AppTheme.textSecondary,
               height: 1.5,
             ),

@@ -1,6 +1,6 @@
 {
   "@@locale": "fr",
-  "appTitle": "Calculateur d'IMC",
+  "appTitle": "myBMI",
   "calculator": "Calculer",
   "reference": "Référence",
   "history": "Historique",

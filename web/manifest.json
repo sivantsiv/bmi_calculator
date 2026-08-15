@@ -1,11 +1,11 @@
 {
-    "name": "Calculate BMI",
-    "short_name": "Calculate BMI",
+    "name": "myBMI",
+    "short_name": "myBMI",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#07071F",
+    "theme_color": "#6C63FF",
+    "description": "myBMI - Modern & Beautiful BMI & Body Fat Calculator.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:calculate_bmi/main.dart';
-import 'package:calculate_bmi/services/bmi_service.dart';
-import 'package:calculate_bmi/services/settings_provider.dart';
-import 'package:calculate_bmi/services/history_provider.dart';
+import 'package:my_bmi/main.dart';
+import 'package:my_bmi/services/bmi_service.dart';
+import 'package:my_bmi/services/settings_provider.dart';
+import 'package:my_bmi/services/history_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -77,7 +77,7 @@ void main() {
     });
   });
 
-  group('BmiService validation', () {
+  group('BmiService validation and parsing', () {
     test('validateWeight bounds', () {
       expect(BmiService.validateWeight(5, true), 'Weight too low');
       expect(BmiService.validateWeight(600, true), 'Weight too high');
@@ -95,6 +95,20 @@ void main() {
       expect(BmiService.validateAge(150), 'Age too high');
       expect(BmiService.validateAge(25), isNull);
     });
+
+    test('parseLocalizedDouble handles dots and commas', () {
+      expect(BmiService.parseLocalizedDouble('70.5'), 70.5);
+      expect(BmiService.parseLocalizedDouble('70,5'), 70.5);
+      expect(BmiService.parseLocalizedDouble('  80,2  '), 80.2);
+      expect(BmiService.parseLocalizedDouble(''), isNull);
+      expect(BmiService.parseLocalizedDouble(null), isNull);
+    });
+
+    test('parseLocalizedInt handles whitespace and null', () {
+      expect(BmiService.parseLocalizedInt(' 25 '), 25);
+      expect(BmiService.parseLocalizedInt(''), isNull);
+      expect(BmiService.parseLocalizedInt(null), isNull);
+    });
   });
 
   group('BmiService unit conversions', () {
@@ -109,7 +123,7 @@ void main() {
 
   // ── Widget smoke test ───────────────────────────────────
 
-  testWidgets('App renders with bottom navigation', (
+  testWidgets('App renders with bottom navigation and myBMI title', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -118,7 +132,7 @@ void main() {
           ChangeNotifierProvider(create: (_) => SettingsProvider()),
           ChangeNotifierProvider(create: (_) => HistoryProvider()),
         ],
-        child: const CalculateBmiApp(),
+        child: const MyBmiApp(),
       ),
     );
     await tester.pump(const Duration(seconds: 1));
@@ -130,14 +144,14 @@ void main() {
     expect(find.text('Settings'), findsOneWidget);
   });
 
-  testWidgets('Calculator screen has inputs', (WidgetTester tester) async {
+  testWidgets('Calculator screen has inputs and calculates', (WidgetTester tester) async {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => SettingsProvider()),
           ChangeNotifierProvider(create: (_) => HistoryProvider()),
         ],
-        child: const CalculateBmiApp(),
+        child: const MyBmiApp(),
       ),
     );
     await tester.pump(const Duration(seconds: 1));

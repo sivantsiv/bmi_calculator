@@ -29,25 +29,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           l10n.clearHistory,
-          style: GoogleFonts.inter(color: AppTheme.textPrimary),
+          style: GoogleFonts.outfit(color: AppTheme.textPrimary, fontWeight: FontWeight.w700),
         ),
         content: Text(
           l10n.deleteConfirm,
-          style: GoogleFonts.inter(color: AppTheme.textSecondary),
+          style: GoogleFonts.outfit(color: AppTheme.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
               l10n.cancel,
-              style: GoogleFonts.inter(color: AppTheme.textSecondary),
+              style: GoogleFonts.outfit(color: AppTheme.textSecondary),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
               l10n.deleteRecord,
-              style: GoogleFonts.inter(color: AppTheme.error),
+              style: GoogleFonts.outfit(color: AppTheme.error, fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -58,6 +58,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       await Provider.of<HistoryProvider>(context, listen: false).clearHistory();
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -125,6 +126,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         final catColor = AppTheme.categoryColor(r.category);
         final dateStr = DateFormat('MMM d, yyyy – HH:mm').format(r.dateTime);
         final unitLabel = r.isMetric ? l10n.metricUnits : l10n.imperialUnits;
+        final genderInitial = r.gender.isNotEmpty ? r.gender[0].toUpperCase() : '';
 
         return Dismissible(
           key: ValueKey(r.id),
@@ -184,7 +186,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ),
                             child: Text(
                               _getLocalizedCategory(context, r.category),
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.outfit(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: catColor,
@@ -194,7 +196,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           const Spacer(),
                           Text(
                             '${r.bodyFatPercentage.toStringAsFixed(1)}% ${l10n.fatLabel}',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.outfit(
                               fontSize: 12,
                               color: AppTheme.textSecondary,
                             ),
@@ -203,8 +205,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        '${r.weight.toStringAsFixed(1)} / ${r.height.toStringAsFixed(0)} ($unitLabel) · ${l10n.ageLabel} ${r.age} · ${r.gender[0].toUpperCase()}',
-                        style: GoogleFonts.inter(
+                        '${r.weight.toStringAsFixed(1)} / ${r.height.toStringAsFixed(0)} ($unitLabel) · ${l10n.ageLabel} ${r.age}${genderInitial.isNotEmpty ? ' · $genderInitial' : ''}',
+                        style: GoogleFonts.outfit(
                           fontSize: 12,
                           color: AppTheme.textSecondary,
                         ),
@@ -212,7 +214,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       const SizedBox(height: 4),
                       Text(
                         dateStr,
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.outfit(
                           fontSize: 11,
                           color: AppTheme.textSecondary.withValues(alpha: 0.6),
                         ),

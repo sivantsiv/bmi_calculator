@@ -16,12 +16,24 @@ class BmiService {
     return weightKg / (heightM * heightM);
   }
 
+  /// Parse numeric input allowing comma as decimal separator.
+  static double? parseLocalizedDouble(String? text) {
+    if (text == null || text.trim().isEmpty) return null;
+    return double.tryParse(text.trim().replaceAll(',', '.'));
+  }
+
+  /// Parse integer input with trimming.
+  static int? parseLocalizedInt(String? text) {
+    if (text == null || text.trim().isEmpty) return null;
+    return int.tryParse(text.trim());
+  }
+
   /// Estimate body fat % using the Deurenberg formula:
   /// BF% = 1.20 × BMI + 0.23 × Age − 10.8 × sex − 5.4
   /// where sex = 1 for male, 0 for female.
   static double calculateBodyFat(double bmi, int age, String gender) {
     if (bmi <= 0 || age < 0) return 0;
-    final sex = gender.toLowerCase() == 'male' ? 1.0 : 0.0;
+    final sex = gender.trim().toLowerCase() == 'male' ? 1.0 : 0.0;
     final bf = 1.20 * bmi + 0.23 * age - 10.8 * sex - 5.4;
     return max(0, bf);
   }

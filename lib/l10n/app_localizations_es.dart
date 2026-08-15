@@ -9,7 +9,7 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
-  String get appTitle => 'Calculadora de IMC';
+  String get appTitle => 'myBMI';
 
   @override
   String get calculator => 'Calcular';

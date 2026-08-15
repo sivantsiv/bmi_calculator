@@ -9,7 +9,7 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
-  String get appTitle => 'BMI 計算機';
+  String get appTitle => 'myBMI';
 
   @override
   String get calculator => '計算';

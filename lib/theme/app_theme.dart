@@ -47,6 +47,7 @@ class AppTheme {
     return base.copyWith(
       scaffoldBackgroundColor: background,
       primaryColor: primary,
+      splashFactory: InkRipple.splashFactory,
       colorScheme: const ColorScheme.dark(
         primary: primary,
         secondary: accent,

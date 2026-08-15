@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/user_settings.dart';
-import '../services/storage_service.dart';
+import '../services/bmi_service.dart';
 import '../theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import '../services/settings_provider.dart';
@@ -21,29 +21,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _weightController = TextEditingController();
   String _gender = 'male';
   bool _useMetric = true;
-  bool _isLoading = true;
+  bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    _load();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      final settingsProvider = Provider.of<SettingsProvider>(context);
+      if (!settingsProvider.isLoading) {
+        _load(settingsProvider.settings);
+        _initialized = true;
+      }
+    }
   }
 
-  void _load() {
-    final s = Provider.of<SettingsProvider>(context, listen: false).settings;
+  void _load(UserSettings s) {
     _nameController.text = s.name;
     _ageController.text = s.defaultAge.toString();
     _heightController.text = s.defaultHeight.toStringAsFixed(0);
     _weightController.text = s.defaultWeight.toStringAsFixed(0);
     _gender = s.defaultGender;
     _useMetric = s.useMetric;
-    _isLoading = false;
   }
 
   Future<void> _save() async {
-    final weight = double.tryParse(_weightController.text);
-    final height = double.tryParse(_heightController.text);
-    final age = int.tryParse(_ageController.text);
+    final weight = BmiService.parseLocalizedDouble(_weightController.text);
+    final height = BmiService.parseLocalizedDouble(_heightController.text);
+    final age = BmiService.parseLocalizedInt(_ageController.text);
 
     if (weight == null || height == null || age == null) {
       final l10n = AppLocalizations.of(context)!;
@@ -56,6 +60,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return;
     }
 
+    final provider = Provider.of<SettingsProvider>(context, listen: false);
+    final currentLanguageCode = provider.settings.languageCode;
+
     final settings = UserSettings(
       name: _nameController.text.trim(),
       defaultGender: _gender,
@@ -63,9 +70,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       useMetric: _useMetric,
       defaultHeight: height,
       defaultWeight: weight,
+      languageCode: currentLanguageCode,
     );
     
-    await Provider.of<SettingsProvider>(context, listen: false).updateSettings(settings);
+    await provider.updateSettings(settings);
     
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -89,8 +97,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
+    if (settingsProvider.isLoading && !_initialized) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (!_initialized) {
+      _load(settingsProvider.settings);
+      _initialized = true;
     }
 
     final l10n = AppLocalizations.of(context)!;
@@ -124,7 +137,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 18),
                 Text(
                   l10n.defaultGender,
-                  style: GoogleFonts.inter(color: AppTheme.textSecondary),
+                  style: GoogleFonts.outfit(color: AppTheme.textSecondary),
                 ),
                 const SizedBox(height: 8),
                 _buildGenderChips(l10n),
@@ -141,7 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     Text(
                       l10n.language,
-                      style: GoogleFonts.inter(color: AppTheme.textSecondary),
+                      style: GoogleFonts.outfit(color: AppTheme.textSecondary),
                     ),
                     _buildLanguageDropdown(context),
                   ],
@@ -153,7 +166,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     Text(
                       l10n.unitSystem,
-                      style: GoogleFonts.inter(color: AppTheme.textSecondary),
+                      style: GoogleFonts.outfit(color: AppTheme.textSecondary),
                     ),
                     SegmentedButton<bool>(
                       segments: [
@@ -182,7 +195,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 14),
                 TextField(
                   controller: _heightController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                     labelText: _useMetric
                         ? l10n.defaultHeightCm
@@ -196,7 +209,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 14),
                 TextField(
                   controller: _weightController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                     labelText: _useMetric
                         ? l10n.defaultWeightKg
@@ -240,7 +253,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // App info
             Text(
               '${l10n.appTitle} ${l10n.appVersion}',
-              style: GoogleFonts.inter(
+              style: GoogleFonts.outfit(
                 fontSize: 12,
                 color: AppTheme.textSecondary.withValues(alpha: 0.5),
               ),
@@ -278,7 +291,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(width: 8),
               Text(
                 title,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.outfit(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: AppTheme.accent,
@@ -325,7 +338,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: e.key,
               child: Text(
                 e.value,
-                style: GoogleFonts.inter(color: AppTheme.textPrimary),
+                style: GoogleFonts.outfit(color: AppTheme.textPrimary),
               ),
             );
           }).toList(),
@@ -378,7 +391,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.outfit(
                   fontWeight: FontWeight.w600,
                   color: selected
                       ? AppTheme.textPrimary

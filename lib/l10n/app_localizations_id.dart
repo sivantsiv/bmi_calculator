@@ -9,7 +9,7 @@ class AppLocalizationsId extends AppLocalizations {
   AppLocalizationsId([String locale = 'id']) : super(locale);
 
   @override
-  String get appTitle => 'Kalkulator BMI';
+  String get appTitle => 'myBMI';
 
   @override
   String get calculator => 'Hitung';

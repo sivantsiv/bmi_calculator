@@ -20,20 +20,21 @@ void main() {
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => HistoryProvider()),
       ],
-      child: const CalculateBmiApp(),
+      child: const MyBmiApp(),
     ),
   );
 }
 
-class CalculateBmiApp extends StatelessWidget {
-  const CalculateBmiApp({super.key});
+class MyBmiApp extends StatelessWidget {
+  const MyBmiApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     final settingsProvider = Provider.of<SettingsProvider>(context);
 
     return MaterialApp(
-      title: 'Calculate BMI',
+      title: 'myBMI',
+      onGenerateTitle: (context) => AppLocalizations.of(context)?.appTitle ?? 'myBMI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       localizationsDelegates: const [
